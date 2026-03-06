@@ -1,0 +1,29 @@
+# python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+.env
+
+# editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# checkpoints / experiments / logs / results
+*.pth
+*.pt
+*.ckpt
+*.onnx
+experiments/
+results/
+tb_logger/
+wandb/
+*.log
+
+# datasets (按你的实际路径再补充)
+Datasets/
+data/
