@@ -20,6 +20,7 @@ We will provide the pre-trained weights as soon as possible.
 
 2.Make sure the file structure is consistent with the following:
 
+```text
 dataset/
 ├── Haze4K
 │   ├── train
@@ -70,6 +71,7 @@ dataset/
     └── test
         ├── GT
         └── rain
+```
 
 
 
