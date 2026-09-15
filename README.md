@@ -22,56 +22,54 @@ We will provide the pre-trained weights as soon as possible.
 
 dataset/
 ├── Haze4K
-│   ├── test
-│   |   ├── GT  
-│   |   └── hazy
-│   |       
-│   |      
-│   └── train
+│   ├── train
+│   │   ├── GT
+│   │   └── hazy
+│   └── test
 │       ├── GT
-│       │  
 │       └── hazy
 ├── ITS
-│   ├── test
-│   |   ├── GT  
-│   |   └── hazy
-│   |       
-│   |      
-│   └── train
+│   ├── train
+│   │   ├── GT
+│   │   └── hazy
+│   └── test
 │       ├── GT
-│       │  
 │       └── hazy
-└── OTS
-│   ├── test
-│   |   ├── GT  
-│   |   └── hazy
-│   |       
-│   |      
-│   └── train
+├── OTS
+│   ├── train
+│   │   ├── GT
+│   │   └── hazy
+│   └── test
 │       ├── GT
-│       │  
 │       └── hazy
-└── NHHAZE
-│   ├── test
-│   |   ├── GT  
-│   |   └── hazy
-│   |       
-│   |      
-│   └── train
+├── NHHAZE
+│   ├── train
+│   │   ├── GT
+│   │   └── hazy
+│   └── test
 │       ├── GT
-│       │  
 │       └── hazy
-└── Dense HAZE
-│   ├── test
-│   |   ├── GT  
-│   |   └── hazy
-│   |       
-│   |      
-│   └── train
+├── DenseHaze
+│   ├── train
+│   │   ├── GT
+│   │   └── hazy
+│   └── test
 │       ├── GT
-│       │  
 │       └── hazy
-
+├── Snow100K
+│   ├── train
+│   │   ├── GT
+│   │   └── snow
+│   └── test
+│       ├── GT
+│       └── snow
+└── Deraining
+    ├── train
+    │   ├── GT
+    │   └── rain
+    └── test
+        ├── GT
+        └── rain
 
 
 
