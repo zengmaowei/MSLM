@@ -74,7 +74,25 @@ dataset/
 ```
 
 
+## Training and Evaluation
 
+
+
+### Train
+
+You need to specify the parameters required for the training folder to set up the training for each experiment, and then run the following script to train the model:
+
+```bash
+python basicsr/train.py 
+```
+
+### Test
+
+After modifying the required parameters for the test, run the following script to test the trained model:
+
+```bash
+python basicsr/test.py 
+```
 
 
 
