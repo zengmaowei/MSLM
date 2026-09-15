@@ -1156,7 +1156,7 @@ class MultiScaleProcessBlock(nn.Module):
 
 
 ##########################################################################
-class MSSM(nn.Module):
+class MSLM(nn.Module):
     def __init__(self,
                  inp_channels=3,
                  dim=[24,48,72,96],
@@ -1170,7 +1170,7 @@ class MSSM(nn.Module):
 
                  ):
 
-        super(MSSM, self).__init__()
+        super(MSLM, self).__init__()
         #新加内容
         self.multiscale=MultiScaleProcessBlock( dim,num_blocks,heads,num_path,qk_norm,offset_clamp, N,path_emb_dim)
         self.up8to4=Upsample(dim[3],dim[2])
@@ -1254,7 +1254,7 @@ if __name__ == "__main__":
     import os
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"
     input_size = torch.rand(1, 3, 256, 256).cuda()
-    model = MSSM().cuda()
+    model = MSLM().cuda()
     model.eval()
     
     print(f"Number of parameters: {count_param(model)}")
