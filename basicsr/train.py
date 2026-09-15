@@ -10,8 +10,8 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 #os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:512,expandable_segments:True'
 import torch
 #torch.cuda.set_per_process_memory_fraction(0.87)
-
-torch.cuda.memory.set_per_process_memory_fraction(0.87)
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+#torch.cuda.memory.set_per_process_memory_fraction(0.87)
 from os import path as osp
 from tqdm import tqdm
 from basicsr.data import create_dataloader, create_dataset
@@ -31,7 +31,7 @@ import numpy as np
 def parse_options(is_train=True):
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-opt', type=str, default='../Dehazing/Options/MB-TaylorFormerV2-ITS-L.yml',
+        '-opt', type=str, default='./Dehazing/Options/MB-TaylorFormerV2-Haze4K-L.yml',
         help='Path to option YAML file')
     parser.add_argument(
         '--launcher',
@@ -386,7 +386,7 @@ def main():
         #use for densehaze            
         #if epoch > 1500 or epoch % 100 == 0:
           #model.save(epoch=epoch, current_iter=current_iter)
-        model.save(epoch=-1, current_iter=-1)
+        model.save(epoch=epoch, current_iter=-1)
         logger.info(f'epoch:{epoch}/{total_epochs}  best: {best_psnr:.4f} lr: {model.get_current_learning_rate()[0]:.2e}')
     total_pbar.close()
         # epoch_time=time.time()-epoch_start_time

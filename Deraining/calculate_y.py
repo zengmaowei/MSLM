@@ -14,8 +14,8 @@ def main():
 
     # target - Ground-truth;
     # Gen: Generated / Restored / Recovered images
-    folder_GT = '/Data/qyw_old/qyw/MPRNet/MPRNet_test/Test100/target/'
-    folder_Gen = '/Data/MBV2_test100/dehazing/'
+    folder_GT = '/home/ubuntu/data/Deraining/deraining_test/deraining_testset/Test1200/target/'
+    folder_Gen = '/home/ubuntu/zengmaowei/MB-TaylorFormerV2-main/MB-TaylorFormerV2-main/Deraining/results/Test1200/'
    
     #save the psnr and ssim score by txt
     PS_path = './score'

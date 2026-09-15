@@ -10,20 +10,20 @@ import utils
 
 from natsort import natsorted
 from glob import glob
-from basicsr.models.archs.MB_TaylorFormerV2 import MB_TaylorFormer
+from basicsr.models.archs.MSSM import MSSM
 from skimage import img_as_ubyte
 from pdb import set_trace as stx
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 parser = argparse.ArgumentParser(description='Image Deraining using MB_TaylorFormer')
 
-parser.add_argument('--input_dir', default='./Datasets/', type=str, help='Directory of validation images')
+parser.add_argument('--input_dir', default='/home/ubuntu/data/Deraining/deraining_test/deraining_testset/', type=str, help='Directory of validation images')
 parser.add_argument('--result_dir', default='./results/', type=str, help='Directory for results')
-parser.add_argument('--weights', default='./pretrained_models/DerainV2-L.pth', type=str, help='Path to weights')
+parser.add_argument('--weights', default='/home/ubuntu/zengmaowei/MB-TaylorFormerV2-main/MB-TaylorFormerV2-main/experiments/Rain100H-L/models/net_g_1295595.pth', type=str, help='Path to weights')
 
 args = parser.parse_args()
 
 ####### Load yaml #######
-yaml_file = 'Options/MB-TaylorFormerV2-L.yml'
+yaml_file = '/home/ubuntu/zengmaowei/MB-TaylorFormerV2-main/MB-TaylorFormerV2-main/Dehazing/Options/MB-TaylorFormerV2-Rain100H-L.yml'
 import yaml
 
 try:
@@ -36,7 +36,7 @@ x = yaml.load(open(yaml_file, mode='r'), Loader=Loader)
 s = x['network_g'].pop('type')
 ##########################
 
-model_restoration = MB_TaylorFormer(**x['network_g'])
+model_restoration = MSSM(**x['network_g'])
 
 checkpoint = torch.load(args.weights)
 model_restoration.load_state_dict(checkpoint['params'], strict=False)
@@ -53,7 +53,7 @@ for dataset in datasets:
     result_dir  = os.path.join(args.result_dir, dataset)
     os.makedirs(result_dir, exist_ok=True)
 
-    inp_dir = os.path.join(args.input_dir, 'test', dataset, 'input')
+    inp_dir = os.path.join(args.input_dir, dataset, 'input')
     files = natsorted(glob(os.path.join(inp_dir, '*.png')) + glob(os.path.join(inp_dir, '*.jpg')))
     with torch.no_grad():
         for file_ in tqdm(files):
@@ -72,6 +72,10 @@ for dataset in datasets:
             input_ = F.pad(input_, (0,padw,0,padh), 'reflect')
 
             restored = model_restoration(input_)
+            
+            # Handle model output format - take the last scale (original resolution)
+            if isinstance(restored, list):
+                restored = restored[-1]  # Take the last scale (original resolution)
 
             # Unpad images to original dimensions
             restored = restored[:,:,:h,:w]

@@ -1160,7 +1160,7 @@ class MSSM(nn.Module):
     def __init__(self,
                  inp_channels=3,
                  dim=[24,48,72,96],
-                 num_blocks=[1,1,2,2],
+                 num_blocks=[4,6,6,8],
                  heads=[1, 2, 4, 8],
                  num_path=[1,1,1,1],  ## True for dual-pixel defocus deblurring only. Also set inp_channels=6
                  qk_norm=0.5,
@@ -1246,57 +1246,36 @@ def count_param(model):
 
 from thop import profile
 from thop import clever_format
+from fvcore.nn import FlopCountAnalysis
 import time
 if __name__ == "__main__":
-    # Create a random input tensor
-    # x = torch.rand(1, 3, 128, 128).cuda()
+    from thop import profile, clever_format
+    from ptflops import get_model_complexity_info
+    import os
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
     input_size = torch.rand(1, 3, 256, 256).cuda()
-    # Initialize the model and move it to GPU
-    # model = MB_TaylorFormer().cuda()
     model = MSSM().cuda()
-    print(f"Number of parameters: {count_param(model)}")
-
-    # Set the model to evaluation mode
     model.eval()
     
+    print(f"Number of parameters: {count_param(model)}")
     
-    
-    
-    # 计算MACs和参数量
-    macs, params = get_model_complexity_info(
-        model,
-        (3, 256,256),
-        as_strings=False,
-        print_per_layer_stat=False,  # 打印每层统计
-        verbose=True
-    )
-    
-    # MACs（乘加运算次数）通常等于FLOPs/2
-    # 对于PyTorch，get_model_complexity_info返回的是MACs
-    flops = macs * 2  # 转换为FLOPs
-    
+    # ========== ptflops (正确方式) ==========
     print("\n" + "="*60)
-    print(f"参数量: {params/1e6:.2f} M")
-    print(f"MACs: {macs/1e9:.2f} G")
-    print(f"FLOPs: {flops/1e9:.2f} G")
-    print("="*60)
-    # Measure inference time
-    num_runs = 10  # Number of runs to average the inference time
-    total_time = 0.0
+    print("ptflops 计算结果:")
+    macs_pt, params_pt = get_model_complexity_info(
+    model, (3, 256, 256),
+    as_strings=False,
+    print_per_layer_stat=False,
+    verbose=False
+)
+    flops_pt = macs_pt * 2  # MACs → FLOPs
 
-    for _ in range(num_runs):
-        start_time = time.time()
-        with torch.no_grad():
-            _ = model(input_size)
-        end_time = time.time()
-        total_time += (end_time - start_time)
+    # thop: 返回值名为 flops，但实为 MACs
+    macs_th, params_th = profile(model, inputs=(input_size,), verbose=False)
+    #flops_th = macs_th * 2  # MACs → FLOPs
 
-    avg_inference_time = total_time / num_runs
-    print(f"Average inference time per image: {avg_inference_time:.6f} seconds")
-
-# Restormer: Efficient Transformer for High-Resolution Image Restoration
-# Syed Waqas Zamir, Aditya Arora, Salman Khan, Munawar Hayat, Fahad Shahbaz Khan, and Ming-Hsuan Yang
-# https://arxiv.org/abs/2111.09881
+    print(f"ptflops:  MACs = {macs_pt/1e9:.2f} G")
+    print(f"thop:     MACs = {macs_th/1e9:.2f} G")
 
 
 

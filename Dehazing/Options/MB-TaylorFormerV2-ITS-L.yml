@@ -1,5 +1,5 @@
 # general settings
-name: ITS-L #MP-linearViT-B14 #MP-taylor-B8-sigmoid
+name: woasf-ITS-L #MP-linearViT-B14 #MP-taylor-B8-sigmoid
 model_type: ImageCleanModel
 scale: 1
 num_gpu: 1  # set num_gpu: 0 for cpu mode
@@ -65,13 +65,13 @@ network_g:
 # path
 path:
   root: /home/ubuntu//zengmaowei/MB-TaylorFormerV2
-  pretrain_network_g: /home/ubuntu/zengmaowei/MB-TaylorFormerV2-main/MB-TaylorFormerV2-main/experiments/ITS-L_39.44/models/net_g_1643825.pth  # /home/ubuntu/zengmaowei/MB-TaylorFormerV2-main/MB-TaylorFormerV2-main/experiments/ITS-L_39.44/models/net_g_1643825.pth
+  pretrain_network_g: ~ #/home/ubuntu/zengmaowei/MB-TaylorFormerV2-main/MB-TaylorFormerV2-main/experiments/ITS-L_temp/net_g_4053.pth  # /home/ubuntu/zengmaowei/MB-TaylorFormerV2-main/MB-TaylorFormerV2-main/experiments/ITS-L_39.44/models/net_g_1643825.pth
   strict_load_g: false
   resume_state: ~
 
 # training settings
 train:
-  total_iter:    7000000  #500000 allsamlpe/batchsize*allepoch 50/2*100=2500 50/2*1
+  total_iter:    2000000  #500000 allsamlpe/batchsize*allepoch 50/2*100=2500 50/2*1
   warmup_iter: -1  # no warm up
   use_grad_clip: true
 
@@ -80,7 +80,7 @@ train:
   # 2nd cycle: cosine annealing (3e-4 to 1e-6) for 208k iters.
   scheduler:
     type: CosineAnnealingRestartCyclicLR
-    periods: [7000000]  # 
+    periods: [2000000]  # 
     restart_weights: [1]
     eta_mins: [0.0000001]
 
@@ -91,7 +91,7 @@ train:
 
   optim_g:
     type: AdamW
-    lr: !!float 2.8e-4 #!!float 3e-4
+    lr: !!float 3e-5 #!!float 3e-4
     weight_decay: !!float 1e-4
     betas: [0.9, 0.999]
 

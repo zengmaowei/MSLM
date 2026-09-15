@@ -322,20 +322,24 @@ class BaseModel():
             current_iter (int): Current iteration.
         """
         if current_iter != -1:
-            state = {
-                'epoch': epoch,
-                'iter': current_iter,
-                'optimizers': [],
-                'schedulers': []
-            }
-            for o in self.optimizers:
-                state['optimizers'].append(o.state_dict())
-            for s in self.schedulers:
-                state['schedulers'].append(s.state_dict())
             save_filename = f'{current_iter}.state'
-            save_path = os.path.join(self.opt['path']['training_states'],
-                                     save_filename)
-            torch.save(state, save_path)
+            
+        else:
+            save_filename = 'latest.state'
+        state = {
+            'epoch': epoch,
+            'iter': current_iter,
+            'optimizers': [],
+            'schedulers': []
+        }
+        for o in self.optimizers:
+            state['optimizers'].append(o.state_dict())
+        for s in self.schedulers:
+            state['schedulers'].append(s.state_dict())
+        
+        save_path = os.path.join(self.opt['path']['training_states'],
+                                    save_filename)
+        torch.save(state, save_path)
 
     def resume_training(self, resume_state):
         """Reload the optimizers and schedulers for resumed training.

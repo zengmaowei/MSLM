@@ -10,8 +10,8 @@ datasets:
   train:
     name: TrainSet
     type: Dataset_PairedImage
-    dataroot_gt: /home/ubuntu/data/OTS/train/GT #../../../../data/DenseHaze/train/GT
-    dataroot_lq: /home/ubuntu/data/OTS/train/hazy # ../../../../data/DenseHaze/train/hazy
+    dataroot_gt: /home/ubuntu/data/OTS_BETA/train/GT #../../../../data/DenseHaze/train/GT
+    dataroot_lq: /home/ubuntu/data/OTS_BETA/train/hazy # ../../../../data/DenseHaze/train/hazy
     geometric_augs: true  #?true
 
     filename_tmpl: '{}_hazy'
@@ -44,18 +44,18 @@ datasets:
   val:
     name: ValSet
     type: Dataset_PairedImage
-    dataroot_gt: /home/ubuntu/data/OTS/test/GT  #../../../../data/DenseHaze/test/GT
-    dataroot_lq: /home/ubuntu/data/OTS/test/hazy #../../../../data/DenseHaze/test/hazy
+    dataroot_gt: /home/ubuntu/data/OTS_BETA/test/GT  #../../../../data/DenseHaze/test/GT
+    dataroot_lq: /home/ubuntu/data/OTS_BETA/test/hazy #../../../../data/DenseHaze/test/hazy
 
     io_backend:
       type: disk
 
 # network structures
 network_g:
-  type: MB_TaylorFormer
+  type: MSSM
   inp_channels: 3
   dim: [24,48,72,96]
-  num_blocks: [2,4,4,6]
+  num_blocks: [4,6,6,8]
   heads: [1,2,4,8]
   num_path: [1,1,1,1]
   qk_norm: 0.5
@@ -64,13 +64,13 @@ network_g:
 # path
 path:
   root: /home/ubuntu//zengmaowei/MB-TaylorFormerV2
-  pretrain_network_g: ~
+  pretrain_network_g:  ~ #/home/ubuntu/zengmaowei/MB-TaylorFormerV2-main/MB-TaylorFormerV2-main/experiments/OTS-L_temp/net_g_1950000.pth
   strict_load_g: false
   resume_state: ~
 
 # training settings
 train:
-  total_iter: 2000000  #500000 allsamlpe/batchsize*allepoch 50/2*100=2500 50/2*1
+  total_iter: 6000000  #500000 allsamlpe/batchsize*allepoch 50/2*100=2500 50/2*1
   warmup_iter: -1  # no warm up
   use_grad_clip: true
 
@@ -79,7 +79,7 @@ train:
   # 2nd cycle:cosine annealing (3e-4 to 1e-6) for 208k iters.
   scheduler:
     type: CosineAnnealingRestartCyclicLR
-    periods: [2000000]  #cover the whole processing
+    periods: [6000000]  #cover the whole processing
     restart_weights: [1]
     eta_mins: [0.00001]
 
@@ -112,7 +112,7 @@ train:
 # validation settings
 val:
   window_size: 8
-  val_freq: 5000
+  val_freq: 10000
   save_img: False
   rgb2bgr: true
   use_image: true

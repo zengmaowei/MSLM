@@ -10,27 +10,28 @@ import utils
 from pytorch_msssim import ssim
 from natsort import natsorted
 from glob import glob
-from basicsr.models.archs.MSSM import MSSM
+from basicsr.models.archs.asfToadd import MSSM
 from skimage import img_as_ubyte
 from pdb import set_trace as stx
 
 parser = argparse.ArgumentParser(description='Image Deraining using MB_TaylorFormer')
 parser.add_argument('--size', default='L', type=str,choices=['B','L'], help='Path to weights')
-parser.add_argument('--input_dir', default="Datasets/ITS_SOTS/input/", type=str, help='Directory of validation images')
+parser.add_argument('--input_dir', default="/home/ubuntu/data/Haze4K/test/hazy", type=str, help='Directory of validation images')
 parser.add_argument('--result_dir', default='./results/', type=str, help='Directory for results')
-parser.add_argument('--target_dir', default="Datasets/ITS_SOTS/gt/", type=str, help='Directory for results')
-parser.add_argument('--dataset', default='ITS', type=str, help='Test Dataset') # ['ITS, OTS, Haze4K, densehaze, nhhaze, ohaze']
-parser.add_argument('--weights', default='../experiments/ITS-L/models/net_g_latest.pth'
+parser.add_argument('--target_dir', default="/home/ubuntu/data/Haze4K/test/GT", type=str, help='Directory for results')
+parser.add_argument('--dataset', default='Haze4K', type=str, help='Test Dataset') # ['ITS, OTS, Haze4K, densehaze, nhhaze, ohaze']
+parser.add_argument('--weights', default='./experiments/asfToadd-Haze4k-L/models/net_g_535500.pth'
                                          , type=str, help='Path to weights')
+SAVE_IMAGES = True 
 
 args = parser.parse_args()
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'  # 例如 '0' 或 '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # 例如 '0' 或 '1'
 
 ####### Load yaml #######
 if args.size=='B':
-    yaml_file = '../Dehazing/Options/MB-TaylorFormerV2-ITS-B.yml'
+    yaml_file = './Dehazing/Options/MB-TaylorFormerV2-DenseHaze-B.yml'
 elif args.size=='L':
-    yaml_file = '../Dehazing/Options/MB-TaylorFormerV2-ITS-L.yml'
+    yaml_file = './Dehazing/Options/MB-TaylorFormerV2-Haze4K-L.yml'
 import yaml
 
 try:
@@ -60,17 +61,36 @@ dataset = args.dataset
 result_dir  = os.path.join(args.result_dir, dataset)
 os.makedirs(result_dir, exist_ok=True)
 
-target_dir = "/home/ubuntu/data/ITS/test/GT"
-inp_dir = "/home/ubuntu/data/ITS/test/hazy"
+# 创建结果记录文件
+results_file = os.path.join(result_dir, 'results.txt')
+print(f"Results will be saved to: {results_file}")
+
+target_dir = args.target_dir
+inp_dir = args.input_dir
 files = natsorted(glob(os.path.join(inp_dir, '*.png')) + glob(os.path.join(inp_dir, '*.jpg')))
 SSIM = []
 PSNR=[]
+
+# 打开结果记录文件
+with open(results_file, 'w') as f:
+    f.write("Image_Name\tPSNR\tSSIM\n")
+    f.write("="*40 + "\n")
+
 with torch.no_grad():
     for file_ in tqdm(files):
 
         img = np.float32(utils.load_img(file_))/255.
 
-        target=np.float32(utils.load_img(os.path.join(target_dir,file_.split('/')[-1])))/255.
+        # 处理Haze4K数据集的文件名匹配
+        if dataset == 'Haze4K':
+            # 从hazy文件名提取基础文件名 (如 "1000_0.73_1.8.png" -> "1000.png")
+            hazy_filename = file_.split('/')[-1]
+            base_name = hazy_filename.split('_')[0] + '.png'
+            target_path = os.path.join(target_dir, base_name)
+        else:
+            target_path = os.path.join(target_dir, file_.split('/')[-1])
+        
+        target=np.float32(utils.load_img(target_path))/255.
 
         img = torch.from_numpy(img).permute(2,0,1)
         target=torch.from_numpy(target).permute(2,0,1)
@@ -108,6 +128,9 @@ with torch.no_grad():
         print(f"  SSIM: {ssim_val:.4f}")
         # =============================
         
+        # 记录到结果文件
+        with open(results_file, 'a') as f:
+            f.write(f"{base_filename}\t{psnr_val:.4f}\t{ssim_val:.4f}\n")
         
         # 格式化数值：PSNR保留2位小数，SSIM保留4位小数
         psnr_str = f"{psnr_val:.2f}".replace('.', 'p')  # 例如: 25.67 -> 25p67
@@ -116,14 +139,19 @@ with torch.no_grad():
         # 构建新文件名
         new_filename = f"{base_filename}_PSNR_{psnr_str}_SSIM_{ssim_str}.png"
     
-        restored = torch.clamp(restored,0,1).cpu().detach().permute(0, 2, 3, 1).squeeze(0).numpy()
-        #utils.save_img((os.path.join(result_dir, os.path.splitext(os.path.split(file_)[-1])[0]+'.png')), img_as_ubyte(restored))
-        utils.save_img((os.path.join(result_dir, new_filename)), img_as_ubyte(restored))
+        if SAVE_IMAGES:
+            restored = torch.clamp(restored,0,1).cpu().detach().permute(0, 2, 3, 1).squeeze(0).numpy()
+            utils.save_img((os.path.join(result_dir, new_filename)), img_as_ubyte(restored))
 
         PSNR.append(psnr_val)
         SSIM.append(ssim_val)
 
+# 写入最终结果到文件
+with open(results_file, 'a') as f:
+    f.write("="*40 + "\n")
+    f.write(f"Average\t{np.mean(PSNR):.4f}\t{np.mean(SSIM):.4f}\n")
+    f.write(f"Std_Dev\t{np.std(PSNR):.4f}\t{np.std(SSIM):.4f}\n")
 
-
-    print('final PSNR:',np.mean(PSNR),'final SSIM:',np.mean(SSIM))
+print('final PSNR:',np.mean(PSNR),'final SSIM:',np.mean(SSIM))
+print(f"Results saved to: {results_file}")
             

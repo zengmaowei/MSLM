@@ -27,3 +27,5 @@ wandb/
 # datasets (按你的实际路径再补充)
 Datasets/
 data/
+Denosing/
+Deblurring/
