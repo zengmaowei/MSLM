@@ -7,6 +7,23 @@ The overall architecture of the network adopts an end-to-end encoder-decoder str
 
 ## Preparation
 
+### Install
+
+We test the code on PyTorch 2.8.0 + CUDA 12.8 + cuDNN 9.1.2.
+
+1. Create a new conda environment
+
+```bash
+conda create -n xx python=3.10
+conda activate xx
+```
+
+2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
 
 
 
