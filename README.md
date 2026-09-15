@@ -17,7 +17,9 @@ We will provide the pre-trained weights as soon as possible.
 
 ## Data Preparation
 1.Download the dataset:ITS,OTS,Haze4K,DenseHaze,NHHAZE,Snow100K,Deraining
+
 2.Make sure the file structure is consistent with the following:
+
 dataset/
 ├── Haze4K
 │   ├── test
